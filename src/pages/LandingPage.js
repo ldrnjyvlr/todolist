@@ -89,39 +89,73 @@ export default function LandingPage() {
   );
 
   // Feature Illustrations with circular icon
-  const FeatureIcon = ({ icon, gradient }) => (
-    <div className="feature-icon-svg feature-icon-circular">
-      <div className="feature-icon-circle">
-        <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
-          <defs>
-            <linearGradient id={`iconGrad${icon}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor={gradient[0]} />
-              <stop offset="100%" stopColor={gradient[1]} />
-            </linearGradient>
-          </defs>
-          {icon === 'check' && (
-            <path d="M18 30 L26 38 L42 22" stroke={`url(#iconGrad${icon})`} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-          )}
-          {icon === 'list' && (
-            <g>
-              <rect x="16" y="18" width="28" height="3" rx="1.5" fill={`url(#iconGrad${icon})`}/>
-              <rect x="16" y="27" width="28" height="3" rx="1.5" fill={`url(#iconGrad${icon})`}/>
-              <rect x="16" y="36" width="22" height="3" rx="1.5" fill={`url(#iconGrad${icon})`}/>
-            </g>
-          )}
-          {icon === 'bolt' && (
-            <path d="M22 18 L33 27 L28 30 L38 42 L27 33 L32 30 L22 18" fill={`url(#iconGrad${icon})`}/>
-          )}
-          {icon === 'lock' && (
-            <g>
-              <rect x="21" y="24" width="18" height="18" rx="3" fill="none" stroke={`url(#iconGrad${icon})`} strokeWidth="2.5"/>
-              <path d="M24 24 L24 19 Q24 16 27 16 L33 16 Q36 16 36 19 L36 24" fill="none" stroke={`url(#iconGrad${icon})`} strokeWidth="2.5"/>
-            </g>
-          )}
-        </svg>
+  const FeatureIcon = ({ icon, gradient }) => {
+    const [isHovered, setIsHovered] = useState(false);
+    const [isActive, setIsActive] = useState(false);
+
+    // Create lighter gradient colors for hover/active states
+    const getGradientColors = () => {
+      if (isActive) {
+        // Lightest for click
+        return ['#f5f0fc', '#fff9fb'];
+      } else if (isHovered) {
+        // Light for hover
+        return ['#f2ecfa', '#fef7fa'];
+      }
+      // Default gradient
+      return gradient;
+    };
+
+    const currentGradient = getGradientColors();
+    const gradientId = `iconGrad${icon}${isActive ? 'Active' : isHovered ? 'Hover' : ''}`;
+
+    const handleMouseLeave = () => {
+      setIsHovered(false);
+      setIsActive(false); // Reset active when mouse leaves
+    };
+
+    return (
+      <div 
+        className="feature-icon-svg feature-icon-circular"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={handleMouseLeave}
+        onMouseDown={() => setIsActive(true)}
+        onMouseUp={() => setIsActive(false)}
+        onTouchStart={() => setIsActive(true)}
+        onTouchEnd={() => setIsActive(false)}
+      >
+        <div className="feature-icon-circle">
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+            <defs>
+              <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor={currentGradient[0]} />
+                <stop offset="100%" stopColor={currentGradient[1]} />
+              </linearGradient>
+            </defs>
+            {icon === 'check' && (
+              <path d="M18 30 L26 38 L42 22" stroke={`url(#${gradientId})`} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+            )}
+            {icon === 'list' && (
+              <g>
+                <rect x="16" y="18" width="28" height="3" rx="1.5" fill={`url(#${gradientId})`}/>
+                <rect x="16" y="27" width="28" height="3" rx="1.5" fill={`url(#${gradientId})`}/>
+                <rect x="16" y="36" width="22" height="3" rx="1.5" fill={`url(#${gradientId})`}/>
+              </g>
+            )}
+            {icon === 'bolt' && (
+              <path d="M22 18 L33 27 L28 30 L38 42 L27 33 L32 30 L22 18" fill={`url(#${gradientId})`}/>
+            )}
+            {icon === 'lock' && (
+              <g>
+                <rect x="21" y="24" width="18" height="18" rx="3" fill="none" stroke={`url(#${gradientId})`} strokeWidth="2.5"/>
+                <path d="M24 24 L24 19 Q24 16 27 16 L33 16 Q36 16 36 19 L36 24" fill="none" stroke={`url(#${gradientId})`} strokeWidth="2.5"/>
+              </g>
+            )}
+          </svg>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const features = [
     {
@@ -132,7 +166,7 @@ export default function LandingPage() {
     },
     {
       icon: 'list',
-      gradient: ['#c7b5f3', '#fbd6ea'],
+      gradient: ['#e8ddf7', '#fef2f6'],
       title: 'Stay Organized',
       description: 'Keep track of all your tasks in one place. Never forget an important task again.'
     },

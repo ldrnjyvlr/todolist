@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import UserManagement from "../components/UserManagement";
+import { auditLogger } from "../utils/auditLogger";
 
 function TaskForm({ onTaskAdd, user }) {
   const [title, setTitle] = useState("");
@@ -11,13 +12,17 @@ function TaskForm({ onTaskAdd, user }) {
     e.preventDefault();
     setLoading(true);
     if (!user) return;
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("task")
       .insert([
         { title, description, user_id: user.id }
-      ]);
+      ])
+      .select()
+      .single();
     setLoading(false);
-    if (!error) {
+    if (!error && data) {
+      // Log task creation
+      await auditLogger.createTask(data.id, title);
       setTitle("");
       setDescription("");
       onTaskAdd();
@@ -83,11 +88,23 @@ function Dashboard({ user }) {
   }
 
   const finishTask = async (id) => {
+    // Get task title before updating
+    const task = tasks.find(t => t.id === id);
     await supabase.from("task").update({ is_completed: true }).eq("id", id);
+    // Log task completion
+    if (task) {
+      await auditLogger.finishTask(id, task.title);
+    }
     fetchTasks();
   };
   const archiveTask = async (id) => {
+    // Get task title before updating
+    const task = tasks.find(t => t.id === id);
     await supabase.from("task").update({ is_archived: true }).eq("id", id);
+    // Log task archive
+    if (task) {
+      await auditLogger.archiveTask(id, task.title);
+    }
     fetchTasks();
   };
   const startEdit = (task) => {
@@ -102,14 +119,37 @@ function Dashboard({ user }) {
   };
   const updateTask = async (id) => {
     if (!editTitle.trim()) return;
+    // Get original task to track changes
+    const originalTask = tasks.find(t => t.id === id);
+    const changes = {};
+    if (originalTask) {
+      if (originalTask.title !== editTitle.trim()) {
+        changes.title = { from: originalTask.title, to: editTitle.trim() };
+      }
+      if ((originalTask.description || '') !== editDescription.trim()) {
+        changes.description = { 
+          from: originalTask.description || '', 
+          to: editDescription.trim() 
+        };
+      }
+    }
+    
     await supabase
       .from("task")
       .update({ title: editTitle.trim(), description: editDescription.trim() })
       .eq("id", id);
+    
+    // Log task edit
+    await auditLogger.editTask(id, editTitle.trim(), changes);
+    
     fetchTasks();
     cancelEdit();
   };
   const logout = async () => {
+    // Log logout event
+    if (profile) {
+      await auditLogger.logout(profile.username);
+    }
     await supabase.auth.signOut();
     window.location.reload();
   };
