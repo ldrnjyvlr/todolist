@@ -12,6 +12,8 @@ export default function LandingPage() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [navMenuOpen, setNavMenuOpen] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
+  const [showContact, setShowContact] = useState(false);
 
   useEffect(() => {
     // Add scroll animations
@@ -311,9 +313,8 @@ export default function LandingPage() {
               <span className="nav-title">TodoList</span>
             </div>
             <div className="footer-links">
-              <a href="#features">Features</a>
-              <a href="#about">About</a>
-              <a href="#contact">Contact</a>
+              <a href="#about" onClick={(e) => { e.preventDefault(); setShowAbout(true); }}>About</a>
+              <a href="#contact" onClick={(e) => { e.preventDefault(); setShowContact(true); }}>Contact</a>
             </div>
             <p className="footer-copyright">© 2024 TodoList. Built with ❤️ for productivity.</p>
           </div>
@@ -343,6 +344,55 @@ export default function LandingPage() {
           // Registration success is handled in the modal
         }}
       />
+
+      {/* About Modal */}
+      {showAbout && (
+        <div className="modal-overlay" onClick={() => setShowAbout(false)}>
+          <div className="modal-content info-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>About</h2>
+              <button className="modal-close-btn" onClick={() => setShowAbout(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <p style={{ fontSize: '1.1rem', lineHeight: '1.8', color: '#5a2a6e', textAlign: 'center', margin: '20px 0' }}>
+                This application was made for Daniela, a very special woman who inspires excellence in everything she does.
+              </p>
+              <p style={{ fontSize: '1rem', lineHeight: '1.6', color: '#53406a', textAlign: 'center', marginTop: '15px' }}>
+                Built with love, dedication, and attention to detail to help manage tasks and boost productivity. 
+                Every feature was thoughtfully designed to make daily life easier and more organized.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contact Modal */}
+      {showContact && (
+        <div className="modal-overlay" onClick={() => setShowContact(false)}>
+          <div className="modal-content info-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Contact</h2>
+              <button className="modal-close-btn" onClick={() => setShowContact(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <p style={{ fontSize: '1.1rem', lineHeight: '1.8', color: '#5a2a6e', textAlign: 'center', margin: '20px 0' }}>
+                We'd love to hear from you!
+              </p>
+              <div style={{ marginTop: '25px', textAlign: 'center' }}>
+                <p style={{ fontSize: '1rem', lineHeight: '1.8', color: '#53406a', marginBottom: '15px' }}>
+                  <strong>Email:</strong> support@todolist.com
+                </p>
+                <p style={{ fontSize: '1rem', lineHeight: '1.8', color: '#53406a', marginBottom: '15px' }}>
+                  <strong>Questions or feedback?</strong> Feel free to reach out anytime.
+                </p>
+                <p style={{ fontSize: '0.95rem', lineHeight: '1.6', color: '#7a6a8a', marginTop: '20px', fontStyle: 'italic' }}>
+                  Your suggestions help us make TodoList even better!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
